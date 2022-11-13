@@ -13,6 +13,10 @@ with open(fileName, "a", encoding='latin-1') as file:
 
 
 def copio(src:str, dest:str, *, follow_symlinks=True):
-    print(src, dest)
+    pass
+
+def ignore(str:str, dirs:List[str]) -> List[str]:
+    print(str)
+    return []
 
 shutil.copytree('.', baseFolder, dirs_exist_ok=True, copy_function=copio)
