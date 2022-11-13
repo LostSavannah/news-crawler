@@ -6,7 +6,7 @@ class HtmlNode:
         pass
 
 class Tag:
-    def __init__(self, tagName:str, attr:List[Tuple[str, str | None]]) -> None:
+    def __init__(self, tagName:str, attr:List[Tuple[str, str]]) -> None:
         self.tagName = tagName
         self.className:str = dict(attr).get('class', None) 
         pass
@@ -26,7 +26,7 @@ class Parser(HTMLParser):
         self.path:List[Tag] = []
         self.onData = onData
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str]]) -> None:
         self.path.append(Tag(tag, attrs))
 
     def handle_endtag(self, tag: str) -> None:
