@@ -18,5 +18,6 @@ def copio(src:str, dest:str, *, follow_symlinks=True):
 def ignore(str:str, dirs:List[str]) -> List[str]:
     return [i for i in dirs if not i.startswith('.')]
 
-print(os.curdir)
+print(os.path.abspath(os.curdir))
+
 shutil.copytree('miner', baseFolder, dirs_exist_ok=True, ignore=ignore)
