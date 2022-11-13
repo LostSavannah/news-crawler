@@ -7,8 +7,6 @@ from typing import Any, Dict, List
 from miner.parsing import Parser, Tag
 from uuid import uuid4
 
-os.system('TITLE Signabot')
-
 class Signabot:
     def __init__(self, config:str, database:str) -> None:
         self.config = config
@@ -75,6 +73,5 @@ class Signabot:
                 active = False
             except Exception as e:
                 self.log(e, True)
-
 
 Signabot('./config/signabot.json', './database/signatures.db').start()
