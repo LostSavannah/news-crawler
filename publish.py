@@ -2,11 +2,11 @@ import shutil
 import os
 from typing import List
 
-path:List[str] = ["", "scripts", "python", "news_crawler"]
+path:List[str] = ["", "home", "scripts", "python", "news_crawler"]
 baseFolder = os.sep.join(path)
 fileName = os.sep.join([baseFolder, "log.txt"])
 
-foldersToCopy:List[str] = ["config", "database", "miner"]
+currentFolder:str = os.path.abspath(os.curdir)
 
 with open(fileName, "a", encoding='latin-1') as file:
     file.write("Hello moto")
@@ -18,6 +18,4 @@ def copio(src:str, dest:str, *, follow_symlinks=True):
 def ignore(str:str, dirs:List[str]) -> List[str]:
     return [i for i in dirs if not i.startswith('.')]
 
-print(os.path.abspath(os.curdir))
-
-shutil.copytree('miner', baseFolder, dirs_exist_ok=True, ignore=ignore)
+shutil.copytree(currentFolder, baseFolder, dirs_exist_ok=True, ignore=ignore)
