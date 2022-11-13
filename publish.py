@@ -3,8 +3,8 @@ import os
 import hashlib
 from typing import List
 
-#path:List[str] = ["", "scripts", "python", "news_crawler"]
-path:List[str] = ["D:", "test", "copytree"]
+path:List[str] = ["", "scripts", "python", "news_crawler"]
+#path:List[str] = ["D:", "test", "copytree"]
 baseFolder = os.sep.join(path)
 
 currentFolder:str = os.path.abspath(os.curdir)
