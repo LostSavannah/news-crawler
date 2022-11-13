@@ -16,7 +16,6 @@ def copio(src:str, dest:str, *, follow_symlinks=True):
     pass
 
 def ignore(str:str, dirs:List[str]) -> List[str]:
-    print(str)
-    return []
+    return [i for i in dirs if not i.startswith('.')]
 
-shutil.copytree('.', baseFolder, dirs_exist_ok=True, copy_function=copio, ignore=ignore)
+shutil.copytree('.', baseFolder, dirs_exist_ok=True, ignore=ignore)
