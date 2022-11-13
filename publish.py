@@ -15,4 +15,4 @@ with open(fileName, "a", encoding='latin-1') as file:
 def copio(src:str, dest:str, *, follow_symlinks=True):
     print(src, dest)
 
-shutil.copytree('.', baseFolder, copy_function=copio)
+shutil.copytree('.', baseFolder, dirs_exist_ok=True, copy_function=copio)
