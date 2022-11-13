@@ -2,7 +2,7 @@ import shutil
 import os
 from typing import List
 
-path:List[str] = ["", "home", "scripts", "python", "news_crawler"]
+path:List[str] = ["", "scripts", "python", "news_crawler"]
 baseFolder = os.sep.join(path)
 fileName = os.sep.join([baseFolder, "log.txt"])
 
