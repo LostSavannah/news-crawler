@@ -1,0 +1,16 @@
+{
+    "config": {
+        "waitIntervalSeconds": 5
+    },
+    "urls": [
+        {
+            "url": "https://listindiario.com/",
+            "updateIntervalSeconds": 3600,
+            "nextUpdateEpoch": 1668277361.0493808,
+            "tags": [
+                "Listín Diario",
+                "Generales"
+            ]
+        }
+    ]
+}

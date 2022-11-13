@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS Words;
+CREATE TABLE Words(
+    word VARCHAR(26)
+);
