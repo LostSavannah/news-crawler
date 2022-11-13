@@ -3,61 +3,78 @@ import sqlite3
 import requests
 import os
 from time import time, sleep, strftime
-from typing import List
+from typing import Any, Dict, List
 from miner.parsing import Parser, Tag
 from uuid import uuid4
 
-configPath:str = './config/signabot.json'
-database:str = './database/signatures.db'
-
 os.system('TITLE Signabot')
 
-def log(data:str, isError:bool = False):
-    moment:str = strftime('%d-%m-%Y %H:%M:%S')
-    print(f'[{moment}] {data}')
+class Signabot:
+    def __init__(self, config:str, database:str) -> None:
+        self.config = config
+        self.database = database
 
-def get_routes_from(url:str) -> List[str]:
-    log(f'Retrieving current signature from: {url}')
-    routes:List[str] = []
-    def on_data(data:str, tags:List[Tag]):
-        nonlocal routes
-        routes.append('/'.join([str(i) for i in tags]))
-    Parser(on_data).feed(requests.get(url).text)
-    return routes.copy()
+    def log(self, data, isError:bool = False) -> None:
+        moment:str = strftime('%d-%m-%Y %H:%M:%S')
+        params = (moment, time(), data, isError)
+        with sqlite3.connect(self.database) as connection:
+            connection.execute('INSERT INTO Logs VALUES (?, ?, ?, ?);', params) 
+            connection.commit()
 
-def save_signature(url:str, signature:List[str]) -> None:
-    signatureStr:str = json.dumps(signature)
-    with sqlite3.connect(database) as connection:
-        params = (str(uuid4()), url, signatureStr, time())
-        connection.execute('INSERT INTO Signatures VALUES (?, ?, ?, ?);', params) 
-        connection.commit()
+    def get_routes_from(self, url:str) -> List[str]:
+        self.log(f'Retrieving current signature from: {url}')
+        routes:List[str] = []
+        def on_data(data:str, tags:List[Tag]):
+            nonlocal routes
+            routes.append('/'.join([str(i) for i in tags]))
+        Parser(on_data).feed(requests.get(url).text)
+        return routes.copy()
 
-def update_signature(signature):
-    url:str = signature["url"]
-    updateIntervalSeconds:int = signature["updateIntervalSeconds"]
-    signature["nextUpdateEpoch"] = updateIntervalSeconds + time()
-    routes:List[str] = get_routes_from(url)
-    log(f'Updating current signature from: {url}')
-    save_signature(url, routes)
+    def save_signature(self, url:str, signature:List[str]) -> None:
+        signatureStr:str = json.dumps(signature)
+        with sqlite3.connect(self.database) as connection:
+            params = (str(uuid4()), url, signatureStr, time())
+            connection.execute('INSERT INTO Signatures VALUES (?, ?, ?, ?);', params) 
+            connection.commit()
 
-with open(configPath, 'r+', encoding='latin-1') as file:
-    active:bool = True
-    while active:
-        file.seek(0)
-        config = json.load(file)
-        waitInterval:float = config["config"]["waitIntervalSeconds"]
-        try:
-            for signature in config["urls"]:
-                if time() > signature["nextUpdateEpoch"]:
-                    update_signature(signature)
-            log(f'waiting {waitInterval} seconds...')
-            sleep(waitInterval)
-        except KeyboardInterrupt:
-            log("User requested exit")
-            active = False
-        except Exception as e:
-            log(e)
-        finally:
-            file.seek(0)
-            file.truncate()
-            json.dump(config, file, indent=4, ensure_ascii=False)
+    def update_signature(self, signature):
+        url:str = signature[0]
+        routes:List[str] = self.get_routes_from(url)
+        self.log(f'Updating current signature from: {url}')
+        self.save_signature(url, routes) 
+        self.update_configured_signature_last_run(signature)  
+
+    def get_configured_signatures(self) -> List[Any]:        
+        with sqlite3.connect(self.database) as connection:
+            query:str = 'SELECT * FROM ConfiguredSignatures;'
+            c = connection.cursor().execute(query)
+            data = c.fetchone()
+            while data is not None:
+                yield data
+                data = c.fetchone()
+
+    def update_configured_signature_last_run(self, signature):
+        url, update, next, tags = signature
+        next = update + time()
+        query = 'UPDATE ConfiguredSignatures SET nextUpdateEpoch = ? where url = ?;'
+        with sqlite3.connect(self.database) as connection:
+            connection.execute(query, (next, url))
+            connection.commit()
+
+    def start(self):
+        active:bool = True
+        while active:
+            waitInterval:float = 5
+            try:
+                for signature in self.get_configured_signatures():
+                    if time() > signature[2]:
+                        self.update_signature(signature)
+                sleep(waitInterval)
+            except KeyboardInterrupt:
+                self.log("User requested exit")
+                active = False
+            except Exception as e:
+                self.log(e, True)
+
+
+Signabot('./config/signabot.json', './database/signatures.db').start()
