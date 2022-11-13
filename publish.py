@@ -19,4 +19,4 @@ def ignore(str:str, dirs:List[str]) -> List[str]:
     print(str)
     return []
 
-shutil.copytree('.', baseFolder, dirs_exist_ok=True, copy_function=copio)
+shutil.copytree('.', baseFolder, dirs_exist_ok=True, copy_function=copio, ignore=ignore)
