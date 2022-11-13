@@ -8,10 +8,6 @@ fileName = os.sep.join([baseFolder, "log.txt"])
 
 currentFolder:str = os.path.abspath(os.curdir)
 
-with open(fileName, "a", encoding='latin-1') as file:
-    file.write("Hello moto")
-
-
 def copio(src:str, dest:str, *, follow_symlinks=True):
     pass
 
